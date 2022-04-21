@@ -1,10 +1,10 @@
 package br.com.campsim.game;
 
 import br.com.campsim.domain.Result;
+import br.com.campsim.domain.ResultList;
 import br.com.campsim.domain.Team;
+import org.apache.commons.lang3.RandomUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class GameSimulator {
 
@@ -12,32 +12,17 @@ public class GameSimulator {
 
     public static Result simulate(Team teamA, Team teamB){
         return Result.builder()
-                .scoreA((double) teamA.getPower())
-                .scoreB((double) teamB.getPower()).build();
+                .scoreA((double) teamA.getPower() * RandomUtils.nextInt(0, 11))
+                .scoreB((double) teamB.getPower() * RandomUtils.nextInt(0, 11)).build();
     }
 
-    public static List<Result> simulate(Team teamA, Team teamB, int bestOf){
-        List<Result> resultList = new ArrayList<>();
+    public static ResultList simulate(Team teamA, Team teamB, int bestOf){
+        ResultList resultList = new ResultList(bestOf);
 
-        while (isNotOver(resultList, bestOf)){
-            resultList.add(simulate(teamA, teamB));
+        while (resultList.isNotOver()) {
+            resultList.addResult(simulate(teamA, teamB));
         }
 
         return resultList;
-    }
-
-    private static boolean isNotOver(List<Result> resultList, int bOx){
-        int vitTeamA = 0;
-        int vitTeamB = 0;
-        int maxResult = (bOx/2) + 1;
-
-        for(Result result : resultList){
-            if(result.isAWinner())
-                vitTeamA++;
-            else
-                vitTeamB++;
-        }
-
-        return vitTeamA == maxResult || vitTeamB == maxResult;
     }
 }

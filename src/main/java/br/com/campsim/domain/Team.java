@@ -1,12 +1,12 @@
 package br.com.campsim.domain;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
+@AllArgsConstructor
 public class Team {
 
     private String name;
