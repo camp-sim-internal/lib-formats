@@ -9,7 +9,7 @@ public class NumberUtils {
         int sum = 0;
 
         for(char let : binaryNumber.toCharArray())
-            sum += let;
+            sum += Integer.parseInt(String.valueOf(let));
 
         return sum == 1;
     }

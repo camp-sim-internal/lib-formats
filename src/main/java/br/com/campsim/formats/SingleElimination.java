@@ -1,6 +1,5 @@
 package br.com.campsim.formats;
 
-import br.com.campsim.domain.ResultList;
 import br.com.campsim.domain.Team;
 import br.com.campsim.exception.InvalidNumberOfTeamsException;
 import br.com.campsim.game.GameSimulator;
@@ -27,7 +26,7 @@ public class SingleElimination {
 
        while (numberOfTeams > 1){
 
-            for(int indexUp = 0, indexDown = numberOfTeams - 1; indexUp < numberOfTeams; indexUp ++, indexDown ++)
+            for(int indexUp = 0, indexDown = numberOfTeams - 1; indexUp < numberOfTeams/2; indexUp ++, indexDown --)
                 processGame(indexUp, indexDown);
 
            numberOfTeams /= 2;
