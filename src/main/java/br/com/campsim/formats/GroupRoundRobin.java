@@ -4,6 +4,7 @@ import br.com.campsim.domain.ResultList;
 import br.com.campsim.domain.Team;
 import br.com.campsim.domain.TeamLeague;
 import br.com.campsim.game.GameSimulator;
+import br.com.campsim.game.impl.GameSimulatorImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +16,7 @@ public class GroupRoundRobin {
 
     private final int bOx;
     private final int rounds;
-
+    private final GameSimulator gameSimulator;
 
     public GroupRoundRobin(List<Team> teams, int bOx, int rounds){
         this.teamLeagues = new ArrayList<>();
@@ -23,6 +24,7 @@ public class GroupRoundRobin {
 
         this.bOx = bOx;
         this.rounds = rounds;
+        this.gameSimulator = new GameSimulatorImpl();
     }
 
     public List<Team> simulate(){
@@ -44,7 +46,7 @@ public class GroupRoundRobin {
     }
 
     private void internalRuleWinner(TeamLeague teamA, TeamLeague teamB){
-        ResultList resultList = GameSimulator.simulate(teamA, teamB, bOx);
+        ResultList resultList = gameSimulator.simulate(teamA, teamB, bOx);
 
         if(resultList.isTeamAWinner()){
             teamA.winner(resultList.getAllScore(true));
