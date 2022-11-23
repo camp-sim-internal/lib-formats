@@ -3,6 +3,7 @@ package br.com.campsim.formats;
 import br.com.campsim.domain.Team;
 import br.com.campsim.exception.InvalidNumberOfTeamsException;
 import br.com.campsim.game.GameSimulator;
+import br.com.campsim.game.impl.GameSimulatorImpl;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public class SingleElimination {
 
     private final List<Team> teams;
     private final int bOx;
+    private final GameSimulator gameSimulator;
 
     public SingleElimination(List<Team> teams, int bOx){
         if(!isMultipleOfTwo(teams.size()))
@@ -19,6 +21,7 @@ public class SingleElimination {
 
         this.teams = teams;
         this.bOx = bOx;
+        this.gameSimulator = new GameSimulatorImpl();
     }
 
    public List<Team> simulate(){
@@ -39,7 +42,7 @@ public class SingleElimination {
         Team teamOne = teams.get(indexOne);
         Team teamTwo = teams.get(indexTwo);
 
-        if(!GameSimulator.simulate(teamOne, teamTwo, bOx).isTeamAWinner()){
+        if(!gameSimulator.simulate(teamOne, teamTwo, bOx).isTeamAWinner()){
             teams.set(indexOne, teamTwo);
             teams.set(indexTwo, teamOne);
         }
