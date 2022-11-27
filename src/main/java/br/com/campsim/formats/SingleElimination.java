@@ -1,9 +1,11 @@
 package br.com.campsim.formats;
 
+import br.com.campsim.domain.PrintResults;
+import br.com.campsim.domain.Result;
+import br.com.campsim.domain.ResultList;
 import br.com.campsim.domain.Team;
 import br.com.campsim.exception.InvalidNumberOfTeamsException;
 import br.com.campsim.game.GameSimulator;
-import br.com.campsim.game.impl.GameSimulatorImpl;
 
 import java.util.List;
 
@@ -13,24 +15,28 @@ public class SingleElimination {
 
     private final List<Team> teams;
     private final int bOx;
+    private final PrintResults printResults;
     private final GameSimulator gameSimulator;
 
-    public SingleElimination(List<Team> teams, int bOx){
+    public SingleElimination(List<Team> teams, int bOx, GameSimulator gameSimulator, PrintResults printResults){
         if(!isMultipleOfTwo(teams.size()))
             throw new InvalidNumberOfTeamsException();
 
+        this.printResults = printResults;
         this.teams = teams;
         this.bOx = bOx;
-        this.gameSimulator = new GameSimulatorImpl();
+        this.gameSimulator = gameSimulator;
     }
 
    public List<Team> simulate(){
        int numberOfTeams = teams.size();
 
        while (numberOfTeams > 1){
-
             for(int indexUp = 0, indexDown = numberOfTeams - 1; indexUp < numberOfTeams/2; indexUp ++, indexDown --)
                 processGame(indexUp, indexDown);
+
+            if (printResults.isPrintChampionshipResult())
+                System.out.println("");
 
            numberOfTeams /= 2;
        }
@@ -42,9 +48,16 @@ public class SingleElimination {
         Team teamOne = teams.get(indexOne);
         Team teamTwo = teams.get(indexTwo);
 
-        if(!gameSimulator.simulate(teamOne, teamTwo, bOx).isTeamAWinner()){
+        ResultList resultList = gameSimulator.simulate(teamOne, teamTwo, bOx, true, printResults.isPrintGameHistoric());
+        if(!resultList.isTeamAWinner()){
             teams.set(indexOne, teamTwo);
             teams.set(indexTwo, teamOne);
         }
+
+        if (printResults.isPrintChampionshipResult())
+            resultList.printSimplifiedResult();
+
+        if (printResults.isPrintGameResult())
+            resultList.getContent().forEach(Result::printResult);
     }
 }

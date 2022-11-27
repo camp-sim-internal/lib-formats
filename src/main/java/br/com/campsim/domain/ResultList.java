@@ -1,10 +1,12 @@
 package br.com.campsim.domain;
 
 import br.com.campsim.exception.SerieIsNotOverException;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class ResultList {
 
     private final int bOx;
@@ -61,5 +63,20 @@ public class ResultList {
             return content.stream().mapToDouble(Result::getScoreA).sum();
         else
             return content.stream().mapToDouble(Result::getScoreB).sum();
+    }
+
+    public double getAllDifferenceScoreAtA(){
+        return content.stream().mapToDouble(Result::getScoreA).sum() - content.stream().mapToDouble(Result::getScoreB).sum();
+    }
+
+    public double getAllDifferenceScoreAtB(){
+        return content.stream().mapToDouble(Result::getScoreB).sum() - content.stream().mapToDouble(Result::getScoreA).sum();
+    }
+
+    public void printSimplifiedResult() {
+        if (isTeamAWinner())
+            System.out.println("TIME A |V| X |D| TIME B");
+        else
+            System.out.println("TIME A |D| X |V| TIME B");
     }
 }

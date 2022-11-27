@@ -1,10 +1,8 @@
 package br.com.campsim.formats;
 
-import br.com.campsim.domain.ResultList;
-import br.com.campsim.domain.Team;
-import br.com.campsim.domain.TeamLeague;
+import br.com.campsim.domain.*;
+import br.com.campsim.exception.InvalidConditionToRunException;
 import br.com.campsim.game.GameSimulator;
-import br.com.campsim.game.impl.GameSimulatorImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,15 +14,23 @@ public class GroupRoundRobin {
 
     private final int bOx;
     private final int rounds;
+    private final boolean simulateWithDrawCase;
+    private final PrintResults printResults;
     private final GameSimulator gameSimulator;
 
-    public GroupRoundRobin(List<Team> teams, int bOx, int rounds){
+
+    public GroupRoundRobin(List<Team> teams, int bOx, int rounds, GameSimulator gameSimulator, boolean simulateWithDrawCase, PrintResults printResults){
+        if (bOx > 1 && !simulateWithDrawCase)
+            throw new InvalidConditionToRunException();
+
         this.teamLeagues = new ArrayList<>();
         teams.forEach(team -> teamLeagues.add(new TeamLeague(team)));
 
+        this.printResults = printResults;
+        this.simulateWithDrawCase = simulateWithDrawCase;
         this.bOx = bOx;
         this.rounds = rounds;
-        this.gameSimulator = new GameSimulatorImpl();
+        this.gameSimulator = gameSimulator;
     }
 
     public List<Team> simulate(){
@@ -37,6 +43,7 @@ public class GroupRoundRobin {
             }
         }
         Collections.sort(teamLeagues);
+        printTable();
 
         return new ArrayList<>(teamLeagues);
     }
@@ -46,13 +53,47 @@ public class GroupRoundRobin {
     }
 
     private void internalRuleWinner(TeamLeague teamA, TeamLeague teamB){
-        ResultList resultList = gameSimulator.simulate(teamA, teamB, bOx);
+        if (bOx == 1) {
+            Result result = gameSimulator.simulate(teamA, teamB, simulateWithDrawCase, printResults.isPrintGameHistoric());
+            printResult(result);
 
-        if(resultList.isTeamAWinner()){
-            teamA.winner(resultList.getAllScore(true));
+            if (result.isAWinner()) {
+                teamA.winner(result.getScoreA() - result.getScoreB());
+                teamB.loser(result.getScoreB() - result.getScoreA());
+            }
+            else if (result.isBWinner()) {
+                teamB.winner(result.getScoreB() - result.getScoreA());
+                teamA.loser(result.getScoreA() - result.getScoreB());
+            } else {
+                teamA.draw();
+                teamB.draw();
+            }
+
+        }  else {
+            ResultList resultList = gameSimulator.simulate(teamA, teamB, bOx, simulateWithDrawCase, printResults.isPrintGameHistoric());
+            resultList.getContent().forEach(this::printResult);
+
+            if(resultList.isTeamAWinner()){
+                teamA.winner(resultList.getAllDifferenceScoreAtA());
+                teamB.loser(resultList.getAllDifferenceScoreAtB());
+            }
+            else{
+                teamB.winner(resultList.getAllDifferenceScoreAtB());
+                teamA.loser(resultList.getAllDifferenceScoreAtA());
+            }
         }
-        else{
-            teamB.winner(resultList.getAllScore(false));
+    }
+
+    private void printResult(Result result) {
+        if (printResults.isPrintGameResult()) {
+            result.printResult();
+        }
+    }
+
+    private void printTable() {
+        if (printResults.isPrintChampionshipResult()) {
+            System.out.println("NOME\t|P| V E D\tdes");
+            teamLeagues.forEach(x -> System.out.println(x.getLineTable()));
         }
     }
 }
