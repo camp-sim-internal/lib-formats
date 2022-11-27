@@ -2,6 +2,8 @@ package br.com.campsim.domain;
 
 import lombok.Getter;
 
+import static org.apache.commons.lang3.StringUtils.rightPad;
+
 @Getter
 public class TeamLeague extends Team implements Comparable<TeamLeague>{
 
@@ -37,7 +39,7 @@ public class TeamLeague extends Team implements Comparable<TeamLeague>{
     }
 
     public String getLineTable() {
-        return String.format("%s\t|%d| %d %d %d\t%.1f%n", getName().substring(0, 4), pontuation, wins, draws, loses, drawCondition);
+        return String.format("%s\t|%d| %d %d %d\t%.1f%n", rightPad(getName(), 4, ' ').substring(0, 4), pontuation, wins, draws, loses, drawCondition);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package br.com.campsim.domain;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,11 +10,15 @@ import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
-@Builder
+@AllArgsConstructor
 public class Result {
 
+    private String nameA;
     private Double scoreA;
+
+    private String nameB;
     private Double scoreB;
+
     private Result resultDraw;
 
     public boolean isAWinner(){
@@ -34,18 +38,14 @@ public class Result {
     }
 
     public void printResult() {
+        String vencedor = isAWinner() ? nameA : nameB;
         if (isDraw()) {
-            if (isAWinner())
-                System.out.printf("TIME A VENCEU NO DESEMPATE! | PLACAR: TIME A %.0f X %.0f TIME B%nPLACAR DESEMPATE: TIME A %.0f X %.0f TIME B%n", scoreA, scoreB, resultDraw.scoreA, resultDraw.getScoreB());
-            else if (isBWinner())
-                System.out.printf("TIME B VENCEU NO DESEMPATE! | PLACAR: TIME A %.0f X %.0f TIME B%nPLACAR DESEMPATE: TIME A %.0f X %.0f TIME B%n", scoreA, scoreB, resultDraw.scoreA, resultDraw.getScoreB());
+            if (isAWinner() || isBWinner())
+                System.out.printf("%s VENCEU NO DESEMPATE! | PLACAR: %s %.0f X %.0f %s%nPLACAR DESEMPATE: %s %.0f X %.0f %s%n", vencedor, nameA, scoreA, scoreB, nameB, nameA, resultDraw.scoreA, resultDraw.scoreB, nameB);
             else
-                System.out.printf("EMPATE TÉCNICO | PLACAR: TIME A %.0f X %.0f TIME B%n", scoreA, scoreB);
+                System.out.printf("EMPATE TÉCNICO | PLACAR: %s %.0f X %.0f %s%n", nameA, scoreA, scoreB, nameB);
         } else {
-            if (isAWinner())
-                System.out.printf("TIME A VENCE O JOGO | PLACAR: TIME A %.0f X %.0f TIME B%n", scoreA, scoreB);
-            else if (isBWinner())
-                System.out.printf("TIME B VENCE O JOGO | PLACAR: TIME A %.0f X %.0f TIME B%n", scoreA, scoreB);
+            System.out.printf("%s VENCE O JOGO | PLACAR: %s %.0f X %.0f %s%n", vencedor, nameA, scoreA, scoreB, nameB);
         }
     }
 }
