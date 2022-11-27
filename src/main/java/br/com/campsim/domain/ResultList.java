@@ -75,8 +75,8 @@ public class ResultList {
 
     public void printSimplifiedResult() {
         if (isTeamAWinner())
-            System.out.println("TIME A |V| X |D| TIME B");
+            System.out.printf("%s |V| X |D| %s%n", content.get(0).getNameA(), content.get(0).getNameB());
         else
-            System.out.println("TIME A |D| X |V| TIME B");
+            System.out.printf("%s |D| X |V| %s%n", content.get(0).getNameA(), content.get(0).getNameB());
     }
 }
