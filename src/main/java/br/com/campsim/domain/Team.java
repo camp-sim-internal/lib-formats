@@ -7,8 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Team {
+public class Team <T>{
 
     private String name;
-    private Integer power;
+    private T power;
 }
