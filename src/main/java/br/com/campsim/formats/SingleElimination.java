@@ -11,14 +11,14 @@ import java.util.List;
 
 import static br.com.campsim.utils.NumberUtils.isMultipleOfTwo;
 
-public class SingleElimination {
+public class SingleElimination<T> {
 
-    private final List<Team> teams;
+    private final List<Team<T>> teams;
     private final int bOx;
     private final PrintResults printResults;
-    private final GameSimulator gameSimulator;
+    private final GameSimulator<T> gameSimulator;
 
-    public SingleElimination(List<Team> teams, int bOx, GameSimulator gameSimulator, PrintResults printResults){
+    public SingleElimination(List<Team<T>> teams, int bOx, GameSimulator<T> gameSimulator, PrintResults printResults){
         if(!isMultipleOfTwo(teams.size()))
             throw new InvalidNumberOfTeamsException();
 
@@ -28,7 +28,7 @@ public class SingleElimination {
         this.gameSimulator = gameSimulator;
     }
 
-   public List<Team> simulate(){
+   public List<Team<T>> simulate(){
        int numberOfTeams = teams.size();
 
        while (numberOfTeams > 1){
@@ -45,8 +45,8 @@ public class SingleElimination {
    }
 
     private void processGame(int indexOne, int indexTwo){
-        Team teamOne = teams.get(indexOne);
-        Team teamTwo = teams.get(indexTwo);
+        Team<T> teamOne = teams.get(indexOne);
+        Team<T> teamTwo = teams.get(indexTwo);
 
         ResultList resultList = gameSimulator.simulate(teamOne, teamTwo, bOx, true, printResults.isPrintGameHistoric());
         if(!resultList.isTeamAWinner()){

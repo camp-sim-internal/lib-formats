@@ -8,23 +8,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class GroupRoundRobin {
+public class GroupRoundRobin<T> {
 
-    private final List<TeamLeague> teamLeagues;
+    private final List<TeamLeague<T>> teamLeagues;
 
     private final int bOx;
     private final int rounds;
     private final boolean simulateWithDrawCase;
     private final PrintResults printResults;
-    private final GameSimulator gameSimulator;
+    private final GameSimulator<T> gameSimulator;
 
 
-    public GroupRoundRobin(List<Team> teams, int bOx, int rounds, GameSimulator gameSimulator, boolean simulateWithDrawCase, PrintResults printResults){
+    public GroupRoundRobin(List<Team<T>> teams, int bOx, int rounds, GameSimulator<T> gameSimulator, boolean simulateWithDrawCase, PrintResults printResults){
         if (bOx > 1 && !simulateWithDrawCase)
             throw new InvalidConditionToRunException();
 
         this.teamLeagues = new ArrayList<>();
-        teams.forEach(team -> teamLeagues.add(new TeamLeague(team)));
+        teams.forEach(team -> teamLeagues.add(new TeamLeague<>(team)));
 
         this.printResults = printResults;
         this.simulateWithDrawCase = simulateWithDrawCase;
@@ -33,7 +33,7 @@ public class GroupRoundRobin {
         this.gameSimulator = gameSimulator;
     }
 
-    public List<Team> simulate(){
+    public List<Team<T>> simulate(){
 
         for(int r = 0; r < rounds; r++){
 
@@ -48,11 +48,11 @@ public class GroupRoundRobin {
         return new ArrayList<>(teamLeagues);
     }
 
-    public List<TeamLeague> getTeamLeagues(){
+    public List<TeamLeague<T>> getTeamLeagues(){
         return this.teamLeagues;
     }
 
-    private void internalRuleWinner(TeamLeague teamA, TeamLeague teamB){
+    private void internalRuleWinner(TeamLeague<T> teamA, TeamLeague<T> teamB){
         if (bOx == 1) {
             Result result = gameSimulator.simulate(teamA, teamB, simulateWithDrawCase, printResults.isPrintGameHistoric());
             printResult(result);

@@ -4,10 +4,10 @@ import br.com.campsim.domain.Result;
 import br.com.campsim.domain.ResultList;
 import br.com.campsim.domain.Team;
 
-public interface GameSimulator {
+public interface GameSimulator<T> {
 
-    Result simulate(Team teamA, Team teamB, boolean simulateWithDrawCase, boolean printGameHistoric);
-    ResultList simulate(Team teamA, Team teamB, int bestOf, boolean simulateWithDrawCase, boolean printGameHistoric);
+    Result simulate(Team<T> teamA, Team<T> teamB, boolean simulateWithDrawCase, boolean printGameHistoric);
+    ResultList simulate(Team<T> teamA, Team<T> teamB, int bestOf, boolean simulateWithDrawCase, boolean printGameHistoric);
 
-    Result simulateDrawCase(Team teamA, Team teamB, boolean printGameHistoric);
+    Result simulateDrawCase(Team<T> teamA, Team<T> teamB, boolean printGameHistoric);
 }
