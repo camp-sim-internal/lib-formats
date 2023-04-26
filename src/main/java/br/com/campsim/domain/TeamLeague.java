@@ -5,7 +5,7 @@ import lombok.Getter;
 import static org.apache.commons.lang3.StringUtils.rightPad;
 
 @Getter
-public class TeamLeague extends Team implements Comparable<TeamLeague>{
+public class TeamLeague<T> extends Team<T> implements Comparable<TeamLeague<T>>{
 
     private int pontuation;
     private int wins;
@@ -13,7 +13,7 @@ public class TeamLeague extends Team implements Comparable<TeamLeague>{
     private int draws;
     private double drawCondition;
 
-    public TeamLeague(Team team){
+    public TeamLeague(Team<T> team){
         super(team.getName(), team.getPower());
 
         this.wins = 0;
@@ -55,10 +55,7 @@ public class TeamLeague extends Team implements Comparable<TeamLeague>{
             else if(this.wins < o.wins)
                 return 1;
             else {
-                if(this.drawCondition > o.drawCondition)
-                    return -1;
-                else
-                    return 1;
+                return Double.compare(o.drawCondition, this.drawCondition);
             }
         }
     }

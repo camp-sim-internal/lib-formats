@@ -11,4 +11,8 @@ public class Team <T>{
 
     private String name;
     private T power;
+
+    public T getPower() {
+        return this.power;
+    }
 }
