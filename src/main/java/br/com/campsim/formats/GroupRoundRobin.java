@@ -8,18 +8,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Objects.isNull;
+
 public class GroupRoundRobin<T> {
 
     private final List<TeamLeague<T>> teamLeagues;
-
-    private final int bOx;
-    private final int rounds;
-    private final boolean simulateWithDrawCase;
     private final PrintResults printResults;
-    private final GameSimulator<T> gameSimulator;
+    private List<List<GameLeague<T>>> games;
+    private int actualRound;
 
-
-    public GroupRoundRobin(List<Team<T>> teams, int bOx, int rounds, GameSimulator<T> gameSimulator, boolean simulateWithDrawCase, PrintResults printResults){
+    public GroupRoundRobin(List<Team<T>> teams, int bOx, int turns, GameSimulator<T> gameSimulator, boolean simulateWithDrawCase, PrintResults printResults){
         if (bOx > 1 && !simulateWithDrawCase)
             throw new InvalidConditionToRunException();
 
@@ -27,23 +25,60 @@ public class GroupRoundRobin<T> {
         teams.forEach(team -> teamLeagues.add(new TeamLeague<>(team)));
 
         this.printResults = printResults;
-        this.simulateWithDrawCase = simulateWithDrawCase;
-        this.bOx = bOx;
-        this.rounds = rounds;
-        this.gameSimulator = gameSimulator;
+        createGames(turns, bOx, simulateWithDrawCase, gameSimulator);
+        this.actualRound = 0;
+    }
+
+    private void createGames(int turns, int bOx, boolean simulateWithDrawCase, GameSimulator<T> gameSimulator) {
+        games = new ArrayList<>();
+        int numberTeams = this.teamLeagues.size();
+        if (numberTeams % 2 != 0) {
+            this.teamLeagues.add(null);
+            numberTeams++;
+        }
+
+
+        int rounds = numberTeams - 1;
+
+        for (int turn = 0; turn < turns; turn++) {
+            for (int round = 0; round < rounds; round++) {
+                List<GameLeague<T>> roundGames = new ArrayList<>();
+
+                for (int teamIndex = 0; teamIndex < numberTeams / 2; teamIndex++) {
+                    if (isNull(this.teamLeagues.get(teamIndex)) || isNull(this.teamLeagues.get(numberTeams - 1 - teamIndex)))
+                        continue;
+                    if (turn % 2 == 0)
+                        roundGames.add(new GameLeague<>(this.teamLeagues.get(teamIndex), this.teamLeagues.get(numberTeams - 1 - teamIndex), gameSimulator, bOx, printResults, simulateWithDrawCase));
+                    else
+                        roundGames.add(new GameLeague<>(this.teamLeagues.get(numberTeams - 1 - teamIndex), this.teamLeagues.get(teamIndex), gameSimulator, bOx, printResults, simulateWithDrawCase));
+                }
+
+                Collections.rotate(this.teamLeagues.subList(1, numberTeams), 1);
+
+                Collections.shuffle(roundGames);
+                games.add(roundGames);
+            }
+        }
+
+        this.teamLeagues.remove(null);
     }
 
     public List<Team<T>> simulate(){
+        for (List<GameLeague<T>> gamesRound : this.games)
+            gamesRound.forEach(GameLeague::internalRuleWinner);
 
-        for(int r = 0; r < rounds; r++){
-
-            for(int casa = 0; casa < teamLeagues.size(); casa++){
-                for(int fora = casa + 1; fora < teamLeagues.size(); fora++)
-                    internalRuleWinner(teamLeagues.get(casa), teamLeagues.get(fora));
-            }
-        }
         Collections.sort(teamLeagues);
         printTable();
+
+        return new ArrayList<>(teamLeagues);
+    }
+
+    public List<Team<T>> simulateActualRound() {
+        this.games.get(actualRound).forEach(GameLeague::internalRuleWinner);
+
+        Collections.sort(teamLeagues);
+        printTable();
+        actualRound++;
 
         return new ArrayList<>(teamLeagues);
     }
@@ -52,43 +87,6 @@ public class GroupRoundRobin<T> {
         return this.teamLeagues;
     }
 
-    private void internalRuleWinner(TeamLeague<T> teamA, TeamLeague<T> teamB){
-        if (bOx == 1) {
-            Result result = gameSimulator.simulate(teamA, teamB, simulateWithDrawCase, printResults.isPrintGameHistoric());
-            printResult(result);
-
-            if (result.isAWinner()) {
-                teamA.winner(result.getScoreA() - result.getScoreB());
-                teamB.loser(result.getScoreB() - result.getScoreA());
-            }
-            else if (result.isBWinner()) {
-                teamB.winner(result.getScoreB() - result.getScoreA());
-                teamA.loser(result.getScoreA() - result.getScoreB());
-            } else {
-                teamA.draw();
-                teamB.draw();
-            }
-
-        }  else {
-            ResultList resultList = gameSimulator.simulate(teamA, teamB, bOx, simulateWithDrawCase, printResults.isPrintGameHistoric());
-            resultList.getContent().forEach(this::printResult);
-
-            if(resultList.isTeamAWinner()){
-                teamA.winner(resultList.getAllDifferenceScoreAtA());
-                teamB.loser(resultList.getAllDifferenceScoreAtB());
-            }
-            else{
-                teamB.winner(resultList.getAllDifferenceScoreAtB());
-                teamA.loser(resultList.getAllDifferenceScoreAtA());
-            }
-        }
-    }
-
-    private void printResult(Result result) {
-        if (printResults.isPrintGameResult()) {
-            result.printResult();
-        }
-    }
 
     private void printTable() {
         if (printResults.isPrintChampionshipResult()) {
