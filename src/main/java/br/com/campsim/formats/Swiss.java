@@ -8,6 +8,7 @@ import br.com.campsim.game.GameSimulator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Swiss<T> implements Format<T> {
 
@@ -21,7 +22,7 @@ public class Swiss<T> implements Format<T> {
         if (teams.size() != 16)
             throw new InvalidNumberOfTeamsException();
 
-        this.teams = teams.stream().map(TeamLeague::new).toList();
+        this.teams = teams.stream().map(TeamLeague::new).collect(Collectors.toList());
         this.printResults = printResults;
         this.gameSimulator = gameSimulator;
         this.games = new ArrayList<>();
