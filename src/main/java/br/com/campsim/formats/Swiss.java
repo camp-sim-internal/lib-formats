@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Swiss<T> implements Format<T> {
 
-    private final List<TeamLeague<T>> teams;
+    private List<TeamLeague<T>> teams;
     private final PrintResults printResults;
     private final GameSimulator<T> gameSimulator;
     private final List<List<GameLeague<T>>> games;
@@ -41,6 +41,7 @@ public class Swiss<T> implements Format<T> {
     }
 
     private List<Team<T>> getClfTeams() {
+        Collections.sort(teams);
         return teams.stream().filter(teams -> teams.getWins() == 3).map(x -> (Team<T>) x).toList();
     }
 

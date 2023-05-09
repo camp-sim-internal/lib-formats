@@ -55,7 +55,12 @@ public class TeamLeague<T> extends Team<T> implements Comparable<TeamLeague<T>>{
             else if(this.wins < o.wins)
                 return 1;
             else {
-                return Double.compare(o.drawCondition, this.drawCondition);
+                if (this.loses < o.loses)
+                    return -1;
+                else if (this.loses > o.loses)
+                    return 1;
+                else
+                    return Double.compare(o.drawCondition, this.drawCondition);
             }
         }
     }
