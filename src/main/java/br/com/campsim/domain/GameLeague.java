@@ -12,16 +12,16 @@ public class GameLeague<T> {
 
     private TeamLeague<T> teamA;
     private TeamLeague<T> teamB;
-    private GameSimulator<T> gameSimulator;
     private int bOx;
     private PrintResults printResults;
     private boolean simulateWithDrawCase;
 
-    public void internalRuleWinner(){
+    public void internalRuleWinner(GameSimulator<T> gameSimulator){
         if (bOx == 1) {
             Result result = gameSimulator.simulate(teamA, teamB, simulateWithDrawCase, printResults.isPrintGameHistoric());
 
-            printResult(result);
+            if (printResults.isPrintGameResult())
+                result.printSimplifiedResult();
 
             if (result.isAWinner()) {
                 teamA.winner(result.getScoreA() - result.getScoreB());
@@ -36,8 +36,10 @@ public class GameLeague<T> {
             }
 
         }  else {
-            ResultList resultList = gameSimulator.simulate(teamA, teamB, bOx, simulateWithDrawCase, printResults.isPrintGameHistoric());
-            resultList.getContent().forEach(this::printResult);
+            ResultList resultList = gameSimulator.simulate(teamA, teamB, bOx, simulateWithDrawCase, printResults.isPrintGameHistoric(), false);
+
+            if (printResults.isPrintGameResult())
+                resultList.printSimplifiedResult();
 
             if(resultList.isTeamAWinner()){
                 teamA.winner(resultList.getAllDifferenceScoreAtA());
@@ -47,12 +49,6 @@ public class GameLeague<T> {
                 teamB.winner(resultList.getAllDifferenceScoreAtB());
                 teamA.loser(resultList.getAllDifferenceScoreAtA());
             }
-        }
-    }
-
-    private void printResult(Result result) {
-        if (printResults.isPrintGameResult()) {
-            result.printResult();
         }
     }
 }

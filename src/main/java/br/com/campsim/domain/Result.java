@@ -48,4 +48,11 @@ public class Result {
             System.out.printf("%s VENCE O JOGO | PLACAR: %s %.0f X %.0f %s%n", vencedor, nameA, scoreA, scoreB, nameB);
         }
     }
+
+    public void printSimplifiedResult() {
+        if (isAWinner())
+            System.out.printf("%s |V| X |D| %s%n", nameA, nameB);
+        else
+            System.out.printf("%s |D| X |V| %s%n", nameA, nameB);
+    }
 }

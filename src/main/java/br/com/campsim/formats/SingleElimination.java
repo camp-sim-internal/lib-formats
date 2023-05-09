@@ -1,22 +1,24 @@
 package br.com.campsim.formats;
 
-import br.com.campsim.domain.PrintResults;
-import br.com.campsim.domain.Result;
-import br.com.campsim.domain.ResultList;
-import br.com.campsim.domain.Team;
+import br.com.campsim.domain.*;
 import br.com.campsim.exception.InvalidNumberOfTeamsException;
+import br.com.campsim.formats.interfaces.Format;
 import br.com.campsim.game.GameSimulator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static br.com.campsim.utils.NumberUtils.isMultipleOfTwo;
 
-public class SingleElimination<T> {
+public class SingleElimination<T> implements Format<T> {
 
     private final List<Team<T>> teams;
     private final int bOx;
     private final PrintResults printResults;
     private final GameSimulator<T> gameSimulator;
+    private final List<List<Game<T>>> games;
+    private int numberOfTeams;
+    private int round;
 
     public SingleElimination(List<Team<T>> teams, int bOx, GameSimulator<T> gameSimulator, PrintResults printResults){
         if(!isMultipleOfTwo(teams.size()))
@@ -26,38 +28,49 @@ public class SingleElimination<T> {
         this.teams = teams;
         this.bOx = bOx;
         this.gameSimulator = gameSimulator;
+        this.numberOfTeams = teams.size();
+        this.games = new ArrayList<>();
+        this.round = 1;
     }
 
-   public List<Team<T>> simulate(){
+    @Override
+    public List<Team<T>> simulateAll(){
        int numberOfTeams = teams.size();
 
        while (numberOfTeams > 1){
+           if (printResults.isPrintGameHistoric() || printResults.isPrintGameResult())
+               System.out.println("ROUND " + round);
+
+            List<Game<T>> gamesRound = new ArrayList<>();
             for(int indexUp = 0, indexDown = numberOfTeams - 1; indexUp < numberOfTeams/2; indexUp ++, indexDown --)
-                processGame(indexUp, indexDown);
+                gamesRound.add(new Game<>(teams.get(indexUp), teams.get(indexDown), bOx, printResults, false));
 
-            if (printResults.isPrintChampionshipResult())
-                System.out.println("");
-
-           numberOfTeams /= 2;
+            this.games.add(gamesRound);
+            gamesRound.forEach(x -> x.internalRuleWinner(gameSimulator, teams));
+            numberOfTeams /= 2;
+            round++;
        }
 
        return teams;
-   }
+    }
 
-    private void processGame(int indexOne, int indexTwo){
-        Team<T> teamOne = teams.get(indexOne);
-        Team<T> teamTwo = teams.get(indexTwo);
+    @Override
+    public List<Team<T>> simulateRound(){
+        if (numberOfTeams <= 1)
+            return teams;
 
-        ResultList resultList = gameSimulator.simulate(teamOne, teamTwo, bOx, true, printResults.isPrintGameHistoric());
-        if(!resultList.isTeamAWinner()){
-            teams.set(indexOne, teamTwo);
-            teams.set(indexTwo, teamOne);
-        }
+        if (printResults.isPrintGameHistoric() || printResults.isPrintGameResult())
+            System.out.println("ROUND " + round);
 
-        if (printResults.isPrintChampionshipResult())
-            resultList.printSimplifiedResult();
+        List<Game<T>> gamesRound = new ArrayList<>();
+        for(int indexUp = 0, indexDown = numberOfTeams - 1; indexUp < numberOfTeams/2; indexUp ++, indexDown --)
+            gamesRound.add(new Game<>(teams.get(indexUp), teams.get(indexDown), bOx, printResults, false));
 
-        if (printResults.isPrintGameResult())
-            resultList.getContent().forEach(Result::printResult);
+        this.games.add(gamesRound);
+        gamesRound.forEach(x -> x.internalRuleWinner(gameSimulator, teams));
+        numberOfTeams /= 2;
+
+        round++;
+        return teams;
     }
 }
