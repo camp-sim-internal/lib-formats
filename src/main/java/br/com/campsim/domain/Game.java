@@ -69,4 +69,12 @@ public class Game <T> {
         alreadyOcurred = true;
         return resultList;
     }
+
+    public Boolean isWinnerTeamA() {
+        if (alreadyOcurred) {
+            return teamA.equals(winner);
+        }
+
+        return null;
+    }
 }
